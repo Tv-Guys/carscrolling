@@ -1,0 +1,38 @@
+services:
+  # Service Backend (API Express)
+  backend:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api-carscrooling
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    networks:
+      - app-network
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  # Service Frontend (React)
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: frontend-carscrooling
+    ports:
+      - "3000:8081"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8081
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
